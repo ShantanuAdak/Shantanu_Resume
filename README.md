@@ -1,2 +1,79 @@
 # Shantanu_Resume
-Rseume in JSON format
+# Resume in JSON format
+import json
+
+def parse_resume(resume_content):
+    resume_json = {
+        "personal_information": {
+            "name": "",
+            "address": "",
+            "phone": "",
+            "email": ""
+        },
+        "professional_summary": "",
+        "work_experience": [],
+        "education": [],
+        "skills": [],
+        "certifications": [],
+        "projects": []
+    }
+    
+    # This is a simplified example. You can improve it by adding real parsing logic.
+    lines = resume_content.split('\n')
+    section = None
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        
+        if line.lower() == 'personal information':
+            section = 'personal_information'
+        elif line.lower() == 'professional summary':
+            section = 'professional_summary'
+        elif line.lower() == 'work experience':
+            section = 'work_experience'
+            resume_json[section].append({})
+        elif line.lower() == 'education':
+            section = 'education'
+            resume_json[section].append({})
+        elif line.lower() == 'skills':
+            section = 'skills'
+        elif line.lower() == 'certifications':
+            section = 'certifications'
+            resume_json[section].append({})
+        elif line.lower() == 'projects':
+            section = 'projects'
+            resume_json[section].append({})
+        else:
+            if section == 'personal_information':
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    resume_json[section][key.strip().lower()] = value.strip()
+            elif section in ['professional_summary', 'skills']:
+                resume_json[section] = line
+            else:
+                if section in ['work_experience', 'education', 'certifications', 'projects']:
+                    last_entry = resume_json[section][-1]
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        last_entry[key.strip().lower()] = value.strip()
+                    else:
+                        if 'responsibilities' not in last_entry:
+                            last_entry['responsibilities'] = []
+                        last_entry['responsibilities'].append(line)
+
+    return resume_json
+
+# Read resume content from input file
+with open('resume.txt', 'r') as file:
+    resume_content = file.read()
+
+# Parse resume content
+parsed_resume = parse_resume(resume_content)
+
+# Output parsed JSON to a file
+with open('parsed_resume.json', 'w') as file:
+    json.dump(parsed_resume, file, indent=4)
+
+print("Resume has been parsed and saved as parsed_resume.json")
